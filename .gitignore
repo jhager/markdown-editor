@@ -1,0 +1,6 @@
+.markdown-editor-settings.json
+
+*.tmp
+
+temp/
+
