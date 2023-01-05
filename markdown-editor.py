@@ -39,6 +39,13 @@ class MarkdownEditor(QMainWindow):
         # Connect the triggered signal of the Open action to the open_file function
         open_action.triggered.connect(self.open_file)
 
+        # Create a Help menu and add it to the menu bar
+        help_menu = menu_bar.addMenu('Help')
+        # Create the "Markdown Syntax" action and add it to the Help menu
+        markdown_syntax_action = QAction('Markdown Syntax', self)
+        help_menu.addAction(markdown_syntax_action)
+        markdown_syntax_action.triggered.connect(self.open_markdown_syntax)
+
         # Create the central widget and set the layout
         central_widget = QWidget()
         central_widget.setLayout(layout)
@@ -124,6 +131,10 @@ class MarkdownEditor(QMainWindow):
     def open_link(self, url):
         # Open the link in the system's external web browser
         QDesktopServices.openUrl(QUrl(url))
+
+    def open_markdown_syntax(self):
+        # Open the "Markdown Syntax" page in the system's default web browser
+        QDesktopServices.openUrl(QUrl('https://commonmark.org/help/'))
 
 app = QApplication(sys.argv)
 editor = MarkdownEditor()
