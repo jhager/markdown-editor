@@ -1,6 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QAction, QMainWindow, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QFileDialog
-from PyQt5.QtCore import QByteArray
+from PyQt5.QtWidgets import QApplication, QAction, QMainWindow, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QFileDialog, QTextBrowser
+from PyQt5.QtCore import QByteArray, QUrl
+from PyQt5.QtGui import QDesktopServices
 import markdown
 import json
 import base64
@@ -12,12 +13,12 @@ class MarkdownEditor(QMainWindow):
         self.current_file = ''
         # Create the text edit widgets for the markdown source and the rendered document
         self.source_text_edit = QTextEdit()
-        self.rendered_text_edit = QTextEdit()
-        self.rendered_text_edit.setReadOnly(True)
+        self.preview_text_edit = QTextBrowser()
+        self.preview_text_edit.anchorClicked.connect(self.open_link)
         # Create the layout
         layout = QHBoxLayout()
         layout.addWidget(self.source_text_edit)
-        layout.addWidget(self.rendered_text_edit)
+        layout.addWidget(self.preview_text_edit)
 	# Connect the textChanged signal of the source text edit to the update function
         self.source_text_edit.textChanged.connect(self.update)
 
@@ -56,7 +57,8 @@ class MarkdownEditor(QMainWindow):
         # Render the markdown source to HTML
         html = markdown.markdown(source)
         # Set the HTML as the content of the rendered text edit
-        self.rendered_text_edit.setHtml(html)
+        self.preview_text_edit.setHtml(html)
+
 
     def save(self):
         if self.current_file is not None:
@@ -118,6 +120,10 @@ class MarkdownEditor(QMainWindow):
                 'geometry': geometry,
                 'state': state 
             }))
+
+    def open_link(self, url):
+        # Open the link in the system's external web browser
+        QDesktopServices.openUrl(QUrl(url))
 
 app = QApplication(sys.argv)
 editor = MarkdownEditor()
