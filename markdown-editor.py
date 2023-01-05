@@ -39,6 +39,14 @@ class MarkdownEditor(QMainWindow):
         # Connect the triggered signal of the Open action to the open_file function
         open_action.triggered.connect(self.open_file)
 
+        # Create a View menu and add it to the menu bar
+        view_menu = menu_bar.addMenu('View')
+        # Create the "Dark Mode" action and add it to the View menu
+        dark_mode_action = QAction('Dark Mode', self, checkable=True)
+        view_menu.addAction(dark_mode_action)
+        # Connect the triggered signal of the "Dark Mode" action to a function that applies the dark mode style
+        dark_mode_action.triggered[bool].connect(self.apply_dark_mode)
+
         # Create a Help menu and add it to the menu bar
         help_menu = menu_bar.addMenu('Help')
         # Create the "Markdown Syntax" action and add it to the Help menu
@@ -135,6 +143,39 @@ class MarkdownEditor(QMainWindow):
     def open_markdown_syntax(self):
         # Open the "Markdown Syntax" page in the system's default web browser
         QDesktopServices.openUrl(QUrl('https://commonmark.org/help/'))
+
+    def apply_dark_mode(self, checked):
+        if checked:
+            # Set the dark mode style sheet
+            self.setStyleSheet("""
+                QWidget {
+                    background-color: #333333;
+                    color: #ffffff;
+                }
+                QTextEdit {
+                    background-color: #444444;
+                    color: #ffffff;
+                }
+                QMenuBar {
+                    background-color: #222222;
+                    color: #ffffff;
+                }
+                QMenu {
+                    background-color: #222222;
+                    color: #ffffff;
+                }
+                QMenu::item {
+                    background-color: #222222;
+                    color: #ffffff;
+                }
+                QMenu::item:selected {
+                    background-color: #555555;
+                }
+            """)
+        else:
+            # Reset the style sheet to the default
+            self.setStyleSheet('')
+
 
 app = QApplication(sys.argv)
 editor = MarkdownEditor()
