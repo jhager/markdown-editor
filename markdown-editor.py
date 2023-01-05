@@ -4,10 +4,12 @@ from PyQt5.QtCore import QByteArray
 import markdown
 import json
 import base64
+import os
 
 class MarkdownEditor(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.current_file = ''
         # Create the text edit widgets for the markdown source and the rendered document
         self.source_text_edit = QTextEdit()
         self.rendered_text_edit = QTextEdit()
@@ -57,6 +59,13 @@ class MarkdownEditor(QMainWindow):
         self.rendered_text_edit.setHtml(html)
 
     def save(self):
+        if self.current_file is not None:
+           with open(self.current_file, 'w') as f:
+              f.write(self.source_text_edit.toPlainText())
+        else:
+           self.saveUsingSaveDialog() 
+
+    def saveUsingSaveDialog(self):
         # Get the markdown source from the source text edit
         source = self.source_text_edit.toPlainText()
         # Show the save file dialog
@@ -79,8 +88,10 @@ class MarkdownEditor(QMainWindow):
                 source = f.read()
             # Set the contents of the source text edit
             self.source_text_edit.setPlainText(source)
+            self.current_file = file_name
             # Update the rendered document
             self.update()
+            self.setWindowTitle(f"Markdown Editor - {os.path.basename(file_name)}")
 
     def read_settings(self, key):
         try:

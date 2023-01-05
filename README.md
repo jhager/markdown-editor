@@ -8,6 +8,7 @@ A simple cross platform markdown editor with instant preview.
 ```
 pip install json markdown
 ```
+
 3. Run the markdown editor:
 
 ```
