@@ -1,7 +1,9 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QAction, QMainWindow, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QFileDialog, QTextBrowser
+from PyQt5.QtWidgets import QApplication, QAction, QMainWindow, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QFileDialog, QTextBrowser, QSplitter
 from PyQt5.QtCore import QByteArray, QUrl
 from PyQt5.QtGui import QDesktopServices
+from PyQt5.QtGui import QKeySequence
+
 import markdown
 import json
 import base64
@@ -16,11 +18,17 @@ class MarkdownEditor(QMainWindow):
         self.preview_text_edit = QTextBrowser()
         self.preview_text_edit.anchorClicked.connect(self.open_link)
         # Create the layout
-        layout = QHBoxLayout()
+        layout = QSplitter()
+        layout.setContentsMargins(0,0,0,0)
+        layout.setStretchFactor(0, 1)
+        layout.setStretchFactor(1, 1)
         layout.addWidget(self.source_text_edit)
         layout.addWidget(self.preview_text_edit)
 	# Connect the textChanged signal of the source text edit to the update function
         self.source_text_edit.textChanged.connect(self.update)
+        self.source_text_edit.setAcceptRichText(False)
+        # Connect the keyPressEvent signal of the source text edit to the paste_as_plain_text function
+       # self.source_text_edit.keyPressEvent = self.paste_as_plain_text
 
 	# Create a menu bar
         menu_bar = self.menuBar()
@@ -54,10 +62,8 @@ class MarkdownEditor(QMainWindow):
         help_menu.addAction(markdown_syntax_action)
         markdown_syntax_action.triggered.connect(self.open_markdown_syntax)
 
-        # Create the central widget and set the layout
-        central_widget = QWidget()
-        central_widget.setLayout(layout)
-        self.setCentralWidget(central_widget)
+        self.setCentralWidget(layout)
+        layout.show()
         # Set the window properties
         self.setWindowTitle('Markdown Editor')
         self.setGeometry(100, 100, 800, 600)
