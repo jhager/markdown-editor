@@ -77,7 +77,7 @@ class MarkdownEditor(QMainWindow):
 
 
     def save(self):
-        if self.current_file is not None:
+        if self.current_file is not None and len(self.current_file) > 0:
            with open(self.current_file, 'w') as f:
               f.write(self.source_text_edit.toPlainText())
         else:
