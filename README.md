@@ -1,25 +1,32 @@
 # Markdown Editor
 
-A simple markdown editor that allows you to edit your markdown document in one window and see a preview of the rendered HTML in another.
+Markdown Editor is a graphical application for editing and previewing markdown documents. It features a split view with a source editor on the left and a preview pane on the right, as well as a menu bar with options for saving, opening, and applying a dark mode style.
 
-##Installation
+
+## Requirements
+
+Python 3
+PyQt5
+markdown
+
+## Installation
 
 To install the required modules, run the following command:
 
 ```
-pip install markdown
+pip install PyQt5 markdown
 ```
 
 ## Usage
 
-To run the application, execute the following command:
+To run the application, open a terminal, navigate to the directory where you cloned or downloaded the repository, and run the following command:
 
 ```
 python markdown-editor.py
 ```
 
 ## Features
-* Live preview of the rendered HTML
+* Live preview of rendered markdown documents
 * Open and save markdown documents
 * Dark mode
 * View Markdown Syntax help page
