@@ -1,13 +1,15 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QAction, QMainWindow, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QFileDialog, QTextBrowser, QSplitter
-from PyQt5.QtCore import QByteArray, QUrl
-from PyQt5.QtGui import QDesktopServices
-from PyQt5.QtGui import QKeySequence
+from PyQt5.QtCore import QByteArray, QUrl, Qt
+from PyQt5.QtGui import QDesktopServices, QTextCursor
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
+
 
 import markdown
 import json
 import base64
 import os
+
 
 class MarkdownEditor(QMainWindow):
     def __init__(self):
@@ -79,8 +81,12 @@ class MarkdownEditor(QMainWindow):
         renderer = markdown.Markdown(extensions=["fenced_code"])
         html = renderer.convert(source)
         # Set the HTML as the content of the rendered text edit
-        self.preview_text_edit.setHtml(html)
-
+        html = renderer.convert(source)
+        html = html.replace('\n</code></pre>', '</code></pre>')
+        # Set the HTML as the content of the rendered text edit, including a style sheet for <pre> blocks
+        self.preview_text_edit.setHtml(
+           f'<html><head><style>pre {{ display: block; font-size:14px; background-color: #111; margin-left: 40; margin-right:40; }} pre[style*="-qt-paragraph-type:empty"] {{ display: none; }}</style></head><body>{html}</body></html>'
+        )
 
     def save(self):
         if self.current_file is not None and len(self.current_file) > 0:
