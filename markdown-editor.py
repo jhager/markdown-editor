@@ -70,7 +70,8 @@ class MarkdownEditor(QMainWindow):
         # Get the markdown source from the source text edit
         source = self.source_text_edit.toPlainText()
         # Render the markdown source to HTML
-        html = markdown.markdown(source)
+        renderer = markdown.Markdown(extensions=["fenced_code"])
+        html = renderer.convert(source)
         # Set the HTML as the content of the rendered text edit
         self.preview_text_edit.setHtml(html)
 
