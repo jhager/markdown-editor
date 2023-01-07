@@ -5,9 +5,9 @@ Markdown Editor is a graphical application for editing and previewing markdown d
 
 ## Requirements
 
-Python 3
-PyQt5
-markdown
+* Python 3
+* PyQt5
+* markdown
 
 ## Installation
 

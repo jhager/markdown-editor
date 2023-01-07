@@ -56,6 +56,13 @@ class MarkdownEditor(QMainWindow):
         view_menu.addAction(dark_mode_action)
         # Connect the triggered signal of the "Dark Mode" action to a function that applies the dark mode style
         dark_mode_action.triggered[bool].connect(self.apply_dark_mode)
+        # Add the "Full Screen" action only for Windows
+        if sys.platform == 'win32':
+            # Create the "Full Screen" action and add it to the View menu
+            full_screen_action = QAction('Full Screen', self, checkable=True)
+            view_menu.addAction(full_screen_action)
+            full_screen_action.triggered[bool].connect(self.toggle_full_screen)
+
 
         # Create a Help menu and add it to the menu bar
         help_menu = menu_bar.addMenu('Help')
@@ -152,6 +159,12 @@ class MarkdownEditor(QMainWindow):
     def open_link(self, url):
         # Open the link in the system's external web browser
         QDesktopServices.openUrl(QUrl(url))
+
+    def toggle_full_screen(self): 
+        if self.isFullScreen():
+            self.showNormal()
+        else:
+            self.showFullScreen()
 
     def open_markdown_syntax(self):
         # Open the "Markdown Syntax" page in the system's default web browser
