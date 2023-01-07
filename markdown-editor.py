@@ -1,9 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QAction, QMainWindow, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QFileDialog, QTextBrowser, QSplitter
-from PyQt5.QtCore import QByteArray, QUrl, Qt
-from PyQt5.QtGui import QDesktopServices, QTextCursor
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
-
+from PyQt5.QtCore import QByteArray, QUrl
+from PyQt5.QtGui import QDesktopServices
 
 import markdown
 import json
