@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QAction, QMainWindow, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QFileDialog, QTextBrowser, QSplitter
+from PyQt5.QtWidgets import QApplication, QAction, QMainWindow, QTextEdit, QFileDialog, QTextBrowser, QSplitter
 from PyQt5.QtCore import QByteArray, QUrl
 from PyQt5.QtGui import QDesktopServices
 
@@ -60,6 +60,8 @@ class MarkdownEditor(QMainWindow):
             full_screen_action = QAction('Full Screen', self, checkable=True)
             view_menu.addAction(full_screen_action)
             full_screen_action.triggered[bool].connect(self.toggle_full_screen)
+            full_screen_action.setShortcut('Ctrl+F')
+
 
 
         # Create a Help menu and add it to the menu bar
