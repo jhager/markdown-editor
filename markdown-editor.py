@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QAction, QMainWindow, QTextEdit, QFileDialog, QTextBrowser, QSplitter
-from PyQt5.QtCore import QByteArray, QUrl
+from PyQt5.QtCore import QByteArray, QUrl, QSettings
 from PyQt5.QtGui import QDesktopServices
 
 import markdown
@@ -78,8 +78,11 @@ class MarkdownEditor(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
 
         #Restore the size and position of the window from the settings file
-        self.restoreGeometry(self.read_settings('geometry'))
-        self.restoreState(self.read_settings('state'))
+        self.settings = QSettings('MarkdownEditor', 'MarkdownEditor')
+        if self.settings.value('geometry') is not None:
+            self.restoreGeometry(self.settings.value('geometry'))
+        if self.settings.value('state') is not None:
+            self.restoreState(self.settings.value('state'))
     
     def update(self):
         # Get the markdown source from the source text edit
@@ -130,18 +133,6 @@ class MarkdownEditor(QMainWindow):
             self.update()
             self.setWindowTitle(f"Markdown Editor - {os.path.basename(file_name)}")
 
-    def read_settings(self, key):
-        try:
-            # Try to open the settings file
-            with open('.markdown-editor-settings.json', 'r') as f:
-                settings = json.loads(f.read())
-        except (FileNotFoundError, ValueError):
-            # If the file does not exist, create it with default settings
-            with open('.markdown-editor-settings.json', 'w') as f:
-                settings = {}
-        # Return the value of the specified key from the settings
-        return QByteArray(base64.b64decode(settings.get(key, '')))
-
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self.write_settings()
@@ -154,14 +145,9 @@ class MarkdownEditor(QMainWindow):
 
     def write_settings(self):
         # Save the size and position of the window to the settings file
-        with open('.markdown-editor-settings.json', 'w') as f:
-            # Convert the dictionary to a string and write it to the file
-            geometry = base64.b64encode(self.saveGeometry().data()).decode('utf-8')
-            state = base64.b64encode(self.saveState().data()).decode('utf-8')
-            f.write(json.dumps({
-                'geometry': geometry,
-                'state': state 
-            }))
+        self.settings.setValue('geometry', self.saveGeometry())
+        self.settings.setValue('state', self.saveState())
+
 
     def open_link(self, url):
         # Open the link in the system's external web browser
