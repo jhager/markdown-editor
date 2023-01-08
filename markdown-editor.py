@@ -137,14 +137,21 @@ class MarkdownEditor(QMainWindow):
                 settings = json.loads(f.read())
         except (FileNotFoundError, ValueError):
             # If the file does not exist, create it with default settings
-            with open('settings.ini', 'w') as f:
+            with open('.markdown-editor-settings.json', 'w') as f:
                 settings = {}
         # Return the value of the specified key from the settings
         return QByteArray(base64.b64decode(settings.get(key, '')))
 
     def resizeEvent(self, event):
+        super().resizeEvent(event)
         self.write_settings()
  
+    def moveEvent(self, event):
+        # Call the superclass implementation of the moveEvent method
+        super().moveEvent(event)
+        self.write_settings()
+
+
     def write_settings(self):
         # Save the size and position of the window to the settings file
         with open('.markdown-editor-settings.json', 'w') as f:
