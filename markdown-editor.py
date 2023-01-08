@@ -102,7 +102,7 @@ class MarkdownEditor(QMainWindow):
             full_screen_action = QAction('Full Screen', self, checkable=True)
             view_menu.addAction(full_screen_action)
             full_screen_action.triggered[bool].connect(self.toggle_full_screen)
-            full_screen_action.setShortcut('Ctrl+F')
+            full_screen_action.setShortcut(Qt.Key_F11)
 
         # Create a list of all the plugins
         plugins = [
