@@ -1,7 +1,5 @@
-import base64
-import json
 import math
-import markdown
+import mistune
 import os
 import sys
 
@@ -33,7 +31,6 @@ from webengine import (
 from searchbox import (
     SearchBox
 )
-
 
 
 class MarkdownEditor(QMainWindow):
@@ -105,7 +102,42 @@ class MarkdownEditor(QMainWindow):
             full_screen_action.triggered[bool].connect(self.toggle_full_screen)
             full_screen_action.setShortcut('Ctrl+F')
 
+        # Create a list of all the plugins
+        plugins = [
+            'strikethrough',
+            'footnotes',
+            'table',
+            'url',
+            'task_lists',
+            'def_list',
+            'abbr',
+            'mark',
+            'insert',
+            'superscript',
+            'subscript',
+            'math',
+            'ruby',
+            'spoiler',
+        ]
 
+        # Create a dictionary to store the QAction objects for each plugin
+        self.plugin_actions = {}
+        self.enabled_plugins = []
+
+        # Create a Markdown menu and add it to the menu bar
+        markdown_menu = self.menuBar().addMenu('Markdown')
+
+        # Create a QAction for each plugin and add it to the Markdown menu
+        for plugin in plugins:
+            action = QAction(plugin, self, checkable=True)
+            markdown_menu.addAction(action)
+            self.plugin_actions[plugin] = action
+
+        # Connect the triggered signal of each QAction to a function that updates the list of enabled plugins
+        for action in self.plugin_actions.values():
+            action.triggered.connect(self.update_enabled_plugins)
+        
+        self.load_enabled_plugins()
 
         # Create a Help menu and add it to the menu bar
         help_menu = menu_bar.addMenu('Help')
@@ -134,16 +166,18 @@ class MarkdownEditor(QMainWindow):
     def update(self):
         # Get the markdown source from the source text edit
         source = self.source_text_edit.toPlainText()
+        print (source)
         # Render the markdown source to HTML
-        renderer = markdown.Markdown(extensions=["fenced_code"])
-        html = renderer.convert(source)
+        markdown = mistune.create_markdown(plugins=self.enabled_plugins)
+
+        html = markdown(source)
         # Set the HTML as the content of the rendered text edit
-        html = renderer.convert(source)
         html = html.replace('\n</code></pre>', '</code></pre>')
         # Set the HTML as the content of the rendered text edit, including a style sheet for <pre> blocks
         finalHtml = (
            f'<html><head><style>pre {{ display: block; font-size:14px; padding: 20px; background-color: #666; border-radius: 5px; margin-left: 40; margin-right:40; }} body {{background-color: #333; color: #CCC;"}}</style></head><body>{html}</body></html>'
         )
+        print(finalHtml)
 
         self.preview_text_edit.setHtml(finalHtml)
 
@@ -201,6 +235,22 @@ class MarkdownEditor(QMainWindow):
         self.search_box = SearchBox(parent=self.source_text_edit)
         self.search_box.setFixedWidth(500)  # Set the width to 300 pixels
         self.search_box.show()
+
+    def update_enabled_plugins(self):
+        # Get the list of enabled plugins from the QAction objects
+        enabled_plugins = [
+            plugin for plugin, action in self.plugin_actions.items()
+            if action.isChecked()
+        ]
+        # Save the list of enabled plugins as a setting using QSettings
+        self.settings.setValue('enabled_plugins', enabled_plugins)
+
+    def load_enabled_plugins(self):
+        # Load the list of enabled plugins from the settings using QSettings
+        self.enabled_plugins = self.settings.value('enabled_plugins', ['strikethrough', 'footnotes', 'table'])
+        # Set the state of the QAction objects for the enabled plugins to checked
+        for plugin, action in self.plugin_actions.items():
+            action.setChecked(plugin in self.enabled_plugins)
 
     def toggle_full_screen(self): 
         if self.isFullScreen():

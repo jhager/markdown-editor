@@ -7,14 +7,14 @@ Markdown Editor is a graphical application for editing and previewing markdown d
 
 * Python 3
 * PyQt5
-* markdown
+* mistune 3.0
 
 ## Installation
 
 To install the required modules, run the following command:
 
 ```
-pip install PyQt5 markdown
+pip install PyQt5 mistune==3.0.0rc4
 ```
 
 ## Usage
@@ -30,3 +30,6 @@ python markdown-editor.py
 * Open and save markdown documents
 * Dark mode
 * View Markdown Syntax help page
+* Support for various Markdown extensions, such as tables, footnotes, and task lists
+* Option to enable/disable specific Markdown extensions
+* Find functionality

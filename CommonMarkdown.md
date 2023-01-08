@@ -19,12 +19,6 @@ _Italic text_
 
 __Bold text__
 
-## Ialic and Bold
-
-***Bold AND Italic text***   
-
-___Bold AND Italic text___
-
 ## Headings
 
 # Heading One
