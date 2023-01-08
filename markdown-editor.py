@@ -12,6 +12,7 @@ import os
 class MarkdownEditor(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.settings = QSettings('MarkdownEditor', 'MarkdownEditor')
         self.current_file = ''
         # Create the text edit widgets for the markdown source and the rendered document
         self.source_text_edit = QTextEdit()
@@ -54,6 +55,10 @@ class MarkdownEditor(QMainWindow):
         view_menu.addAction(dark_mode_action)
         # Connect the triggered signal of the "Dark Mode" action to a function that applies the dark mode style
         dark_mode_action.triggered[bool].connect(self.apply_dark_mode)
+        dark_mode = self.settings.value('dark_mode', False)
+        dark_mode_action.setChecked(dark_mode)
+        self.apply_dark_mode(dark_mode)
+
         # Add the "Full Screen" action only for Windows
         if sys.platform == 'win32':
             # Create the "Full Screen" action and add it to the View menu
@@ -78,7 +83,6 @@ class MarkdownEditor(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
 
         #Restore the size and position of the window from the settings file
-        self.settings = QSettings('MarkdownEditor', 'MarkdownEditor')
         if self.settings.value('geometry') is not None:
             self.restoreGeometry(self.settings.value('geometry'))
         if self.settings.value('state') is not None:
@@ -164,6 +168,7 @@ class MarkdownEditor(QMainWindow):
         QDesktopServices.openUrl(QUrl('https://commonmark.org/help/'))
 
     def apply_dark_mode(self, checked):
+        self.settings.setValue('dark_mode', checked)
         if checked:
             # Set the dark mode style sheet
             self.setStyleSheet("""
