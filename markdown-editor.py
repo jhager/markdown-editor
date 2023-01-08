@@ -44,8 +44,10 @@ class MarkdownEditor(QMainWindow):
         self.interceptor = WebEngineUrlRequestInterceptor()
         self.profile = QWebEngineProfile()
         self.profile.setRequestInterceptor(self.interceptor)
-        page = MyWebEnginePage(self.profile, self.preview_text_edit)
-        self.preview_text_edit.setPage(page)
+        self.page = MyWebEnginePage(self.profile, self.preview_text_edit)
+        self.preview_text_edit.setPage(self.page)
+        self.page.setParent(self.profile)
+
 
         #todo self.preview_text_edit.anchorClicked.connect(self.open_link)
         # Create the layout
@@ -166,7 +168,7 @@ class MarkdownEditor(QMainWindow):
     def update(self):
         # Get the markdown source from the source text edit
         source = self.source_text_edit.toPlainText()
-        print (source)
+        #print (self.enabled_plugins)
         # Render the markdown source to HTML
         markdown = mistune.create_markdown(plugins=self.enabled_plugins)
 
@@ -177,7 +179,7 @@ class MarkdownEditor(QMainWindow):
         finalHtml = (
            f'<html><head><style>pre {{ display: block; font-size:14px; padding: 20px; background-color: #666; border-radius: 5px; margin-left: 40; margin-right:40; }} body {{background-color: #333; color: #CCC;"}}</style></head><body>{html}</body></html>'
         )
-        print(finalHtml)
+        #print(finalHtml)
 
         self.preview_text_edit.setHtml(finalHtml)
 
@@ -238,12 +240,13 @@ class MarkdownEditor(QMainWindow):
 
     def update_enabled_plugins(self):
         # Get the list of enabled plugins from the QAction objects
-        enabled_plugins = [
+        self.enabled_plugins = [
             plugin for plugin, action in self.plugin_actions.items()
             if action.isChecked()
         ]
+        self.update()
         # Save the list of enabled plugins as a setting using QSettings
-        self.settings.setValue('enabled_plugins', enabled_plugins)
+        self.settings.setValue('enabled_plugins', self.enabled_plugins)
 
     def load_enabled_plugins(self):
         # Load the list of enabled plugins from the settings using QSettings
