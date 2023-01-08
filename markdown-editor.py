@@ -1,12 +1,43 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QAction, QMainWindow, QTextEdit, QFileDialog, QTextBrowser, QSplitter
-from PyQt5.QtCore import QByteArray, QUrl, QSettings
+from PyQt5.QtWidgets import QApplication, QAction, QMainWindow, QTextEdit, QFileDialog, QSplitter
+from PyQt5.QtCore import QUrl, QSettings
 from PyQt5.QtGui import QDesktopServices
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtWebEngineWidgets import QWebEnginePage
+from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineProfile
+
+
+
 
 import markdown
 import json
 import base64
 import os
+import math
+
+class MyWebEngineView(QWebEngineView):
+    def acceptNavigationRequest(self, url, type, isMainFrame):
+        print ("acceptNavigationRequest " + url)
+        if type == QWebEnginePage.NavigationTypeLinkClicked:
+            QDesktopServices.openUrl(url)
+            return False
+        return super().acceptNavigationRequest(url, type, isMainFrame)
+
+class WebEngineUrlRequestInterceptor(QWebEngineUrlRequestInterceptor):
+    def interceptRequest(self, info):
+        pass
+#        print("loading...")
+#        print(info.requestUrl()) 
+
+class MyWebEnginePage(QWebEnginePage):
+    def acceptNavigationRequest(self, url, _type, isMainFrame):
+#        print("acceptNavigationRequest for ...")
+#        print(url)
+        if _type == QWebEnginePage.NavigationTypeLinkClicked:
+            QDesktopServices.openUrl(url)
+            return False
+        return QWebEnginePage.acceptNavigationRequest(self, url, _type, isMainFrame)
 
 
 class MarkdownEditor(QMainWindow):
@@ -16,13 +47,18 @@ class MarkdownEditor(QMainWindow):
         self.current_file = ''
         # Create the text edit widgets for the markdown source and the rendered document
         self.source_text_edit = QTextEdit()
-        self.preview_text_edit = QTextBrowser()
-        self.preview_text_edit.anchorClicked.connect(self.open_link)
+        self.preview_text_edit = MyWebEngineView()
+        self.interceptor = WebEngineUrlRequestInterceptor()
+        self.profile = QWebEngineProfile()
+        self.profile.setRequestInterceptor(self.interceptor)
+        page = MyWebEnginePage(self.profile, self.preview_text_edit)
+        self.preview_text_edit.setPage(page)
+
+        #todo self.preview_text_edit.anchorClicked.connect(self.open_link)
         # Create the layout
         layout = QSplitter()
         layout.setContentsMargins(0,0,0,0)
-        layout.setStretchFactor(0, 1)
-        layout.setStretchFactor(1, 1)
+        layout.setSizes([50, 50])
         layout.addWidget(self.source_text_edit)
         layout.addWidget(self.preview_text_edit)
 	# Connect the textChanged signal of the source text edit to the update function
@@ -87,6 +123,11 @@ class MarkdownEditor(QMainWindow):
             self.restoreGeometry(self.settings.value('geometry'))
         if self.settings.value('state') is not None:
             self.restoreState(self.settings.value('state'))
+
+        self.source_text_edit.resize(math.floor(self.geometry().width()/2), self.geometry().height())
+        self.preview_text_edit.resize(math.floor(self.geometry().width()/2), self.geometry().height())
+        self.update()
+
     
     def update(self):
         # Get the markdown source from the source text edit
@@ -98,9 +139,11 @@ class MarkdownEditor(QMainWindow):
         html = renderer.convert(source)
         html = html.replace('\n</code></pre>', '</code></pre>')
         # Set the HTML as the content of the rendered text edit, including a style sheet for <pre> blocks
-        self.preview_text_edit.setHtml(
-           f'<html><head><style>pre {{ display: block; font-size:14px; background-color: #111; margin-left: 40; margin-right:40; }} pre[style*="-qt-paragraph-type:empty"] {{ display: none; }}</style></head><body>{html}</body></html>'
+        finalHtml = (
+           f'<html><head><style>pre {{ display: block; font-size:14px; padding: 20px; background-color: #666; border-radius: 5px; margin-left: 40; margin-right:40; }} body {{background-color: #333; color: #CCC;"}}</style></head><body>{html}</body></html>'
         )
+
+        self.preview_text_edit.setHtml(finalHtml)
 
     def save(self):
         if self.current_file is not None and len(self.current_file) > 0:
@@ -152,11 +195,6 @@ class MarkdownEditor(QMainWindow):
         self.settings.setValue('geometry', self.saveGeometry())
         self.settings.setValue('state', self.saveState())
 
-
-    def open_link(self, url):
-        # Open the link in the system's external web browser
-        QDesktopServices.openUrl(QUrl(url))
-
     def toggle_full_screen(self): 
         if self.isFullScreen():
             self.showNormal()
@@ -205,4 +243,3 @@ app = QApplication(sys.argv)
 editor = MarkdownEditor()
 editor.show()
 sys.exit(app.exec_())
-
