@@ -10,6 +10,8 @@ from PyQt5.QtCore import (
 from PyQt5.QtGui import (
     QDesktopServices,
 )
+from PyQt5.QtPrintSupport import QPrinter
+
 from PyQt5.QtWebEngineWidgets import (
     QWebEngineProfile,
 )
@@ -78,6 +80,12 @@ class MarkdownEditor(QMainWindow):
         file_menu.addAction(open_action)
         # Connect the triggered signal of the Open action to the open_file function
         open_action.triggered.connect(self.open_file)
+        # Create the "Export" action and add it to the "File" menu
+        export_action = QAction("Export to PDF", self)
+        export_action.setShortcut('Ctrl+E')
+        file_menu.addAction(export_action)
+        # Connect the triggered signal of the "Export" action to the export_pdf function
+        export_action.triggered.connect(self.export_pdf)
 
         edit_menu = menu_bar.addMenu('Edit')
         find_action = QAction('Find', self)
@@ -217,6 +225,20 @@ class MarkdownEditor(QMainWindow):
             # Update the rendered document
             self.update()
             self.setWindowTitle(f"Markdown Editor - {os.path.basename(file_name)}")
+
+    def print_finished(self,result):
+       self.printer = None
+
+    def export_pdf(self):
+        # Open a file dialog to let the user choose the PDF file to save
+        file_name, _ = QFileDialog.getSaveFileName(self, "Export PDF", "", "PDF files (*.pdf)")
+        if file_name:
+            # Create a QPrinter object and set its output format to PDF
+            self.printer = QPrinter(QPrinter.HighResolution)
+            self.printer.setOutputFormat(QPrinter.PdfFormat)
+            self.printer.setOutputFileName(file_name)
+            # Render the contents of the preview pane to the PDF file
+            self.preview_text_edit.page().print(self.printer, self.print_finished)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
