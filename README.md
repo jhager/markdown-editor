@@ -14,7 +14,7 @@ Markdown Editor is a graphical application for editing and previewing markdown d
 To install the required modules, run the following command:
 
 ```
-pip install PyQt5 mistune==3.0.0rc4
+python -m pip install -r requirements.txt
 ```
 
 ## Usage

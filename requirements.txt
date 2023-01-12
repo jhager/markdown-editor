@@ -1,0 +1,3 @@
+PyQt5
+PyQtWebEngine
+mistune==3.0.0rc4

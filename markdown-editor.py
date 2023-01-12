@@ -102,8 +102,6 @@ class MarkdownEditor(QMainWindow):
         # Connect the triggered signal of the "Dark Mode" action to a function that applies the dark mode style
         dark_mode_action.triggered[bool].connect(self.apply_dark_mode)
         dark_mode = self.settings.value('dark_mode', False)
-        dark_mode_action.setChecked(dark_mode)
-        self.apply_dark_mode(dark_mode)
 
         view_menu.addSeparator()
         # create a new "Styles" menu
@@ -136,7 +134,7 @@ class MarkdownEditor(QMainWindow):
             full_screen_action = QAction('Full Screen', self, checkable=True)
             view_menu.addAction(full_screen_action)
             full_screen_action.triggered[bool].connect(self.toggle_full_screen)
-            full_screen_action.setShortcut(Qt.Key_F11)
+            full_screen_action.setShortcut("F11")
 
         # Create a list of all the plugins
         plugins = [
