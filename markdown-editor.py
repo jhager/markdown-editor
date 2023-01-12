@@ -1,3 +1,4 @@
+import functools
 import math
 import mistune
 import os
@@ -104,6 +105,31 @@ class MarkdownEditor(QMainWindow):
         dark_mode_action.setChecked(dark_mode)
         self.apply_dark_mode(dark_mode)
 
+        view_menu.addSeparator()
+        # create a new "Styles" menu
+        styles_menu = view_menu.addMenu("Styles")
+        
+        self.current_css = None
+        # iterate through all files in the "styles" folder
+        path = "styles"
+        for filename in os.listdir(path):
+            if filename.endswith(".css"):
+                css_action = QAction(filename[:-4], self)
+                css_action.triggered.connect(functools.partial(self.change_css, filename))
+                css_action.setCheckable(True)
+                styles_menu.addAction(css_action)
+                if filename == "default.css":
+                    css_action.setChecked(True)
+                    self.current_css = css_action
+                else:
+                    css_action.setChecked(False)
+
+        styles_menu.addSeparator()
+        reload_action = QAction("Reload CSS", self)
+        reload_action.setShortcut("Ctrl+R")
+        reload_action.triggered.connect(self.reload_css)
+        styles_menu.addAction(reload_action)
+
         # Add the "Full Screen" action only for Windows
         if sys.platform == 'win32':
             # Create the "Full Screen" action and add it to the View menu
@@ -156,6 +182,9 @@ class MarkdownEditor(QMainWindow):
         help_menu.addAction(markdown_syntax_action)
         markdown_syntax_action.triggered.connect(self.open_markdown_syntax)
 
+        with open('styles/default.css', 'r') as f:
+            self.css = f.read()
+
         self.setCentralWidget(layout)
         layout.show()
         # Set the window properties
@@ -185,7 +214,7 @@ class MarkdownEditor(QMainWindow):
         html = html.replace('\n</code></pre>', '</code></pre>')
         # Set the HTML as the content of the rendered text edit, including a style sheet for <pre> blocks
         finalHtml = (
-           f'<html><head><style>pre {{ display: block; font-size:14px; padding: 20px; background-color: #666; border-radius: 5px; margin-left: 40; margin-right:40; }} body {{background-color: #333; color: #CCC;"}}</style></head><body>{html}</body></html>'
+           f'<html><head><style>{self.css}</style></head><body>{html}</body></html>'
         )
         #print(finalHtml)
 
@@ -233,6 +262,7 @@ class MarkdownEditor(QMainWindow):
         # Open a file dialog to let the user choose the PDF file to save
         file_name, _ = QFileDialog.getSaveFileName(self, "Export PDF", "", "PDF files (*.pdf)")
         if file_name:
+            self.preview_text_edit.page().runJavaScript("window.scrollTo(0, 0);")
             # Create a QPrinter object and set its output format to PDF
             self.printer = QPrinter(QPrinter.HighResolution)
             self.printer.setOutputFormat(QPrinter.PdfFormat)
@@ -297,19 +327,19 @@ class MarkdownEditor(QMainWindow):
                     color: #ffffff;
                 }
                 QTextEdit {
-                    background-color: #444444;
+                    background-color: #333333;
                     color: #ffffff;
                 }
                 QMenuBar {
-                    background-color: #222222;
+                    background-color: #333333;
                     color: #ffffff;
                 }
                 QMenu {
-                    background-color: #222222;
+                    background-color: #333333;
                     color: #ffffff;
                 }
                 QMenu::item {
-                    background-color: #222222;
+                    background-color: #333333;
                     color: #ffffff;
                 }
                 QMenu::item:selected {
@@ -320,6 +350,21 @@ class MarkdownEditor(QMainWindow):
             # Reset the style sheet to the default
             self.setStyleSheet('')
 
+    def change_css(self, filename):
+        print("CHANGE CSS")
+        if self.current_css is not None:
+            self.current_css.setChecked(False)
+        self.current_css = self.sender()
+        self.current_css.setChecked(True)
+        with open(f'styles/{filename}', 'r') as f:
+            self.css = f.read()
+        print(self.css)
+        self.update()
+    
+    def reload_css(self):
+        with open(f'styles/{self.current_css.text()}.css', 'r') as f:
+            self.css = f.read()
+        self.update()
 
 app = QApplication(sys.argv)
 editor = MarkdownEditor()
