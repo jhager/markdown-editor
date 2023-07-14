@@ -55,7 +55,7 @@ class MarkdownEditor(QMainWindow):
         # Create the layout
         layout = QSplitter()
         layout.setContentsMargins(0,0,0,0)
-        layout.setSizes([50, 50])
+        layout.setSizes([500, 500])
         layout.addWidget(self.source_text_edit)
         layout.addWidget(self.preview_text_edit)
 	# Connect the textChanged signal of the source text edit to the update function
@@ -318,8 +318,8 @@ class MarkdownEditor(QMainWindow):
             # Reset the style sheet to the default
             self.setStyleSheet('')
 
-
-app = QApplication(sys.argv)
-editor = MarkdownEditor()
-editor.show()
-sys.exit(app.exec_())
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    editor = MarkdownEditor()
+    editor.show()
+    sys.exit(app.exec_())
