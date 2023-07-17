@@ -3,13 +3,36 @@ import unittest
 from unittest.mock import patch
 from PyQt5.QtWidgets import QApplication
 from markdown_editor import MarkdownEditor
+import PyPDF2
 
-TEST_SAVE_FILE = './temp/test_save_file.md'
-TEST_OPEN_FILE = './temp/test_open_file.md'
-TEST_EXPORT_FILE = './temp/test_export_file.pdf'
+TEST_SAVE_FILE = './test/test_save_file.md'
+TEST_OPEN_FILE = './test/test_open_file.md'
+TEST_EXPORT_FILE = './test/test_export_file.pdf'
+TEST_EXPORT_COMPARE_FILE = './test/test_export_compare_file.pdf'
 TEST_SAVE_CONTENTS = 'Hello, world!'
 TEST_OPEN_CONTENTS = 'Hello, world!'
 TEST_EXPORT_CONTENTS = 'Hello, world!'
+
+def compare_pdfs(file1, file2):
+    # Open the two PDF files in binary mode
+    with open(file1, 'rb') as f1, open(file2, 'rb') as f2:
+        # Create two PyPDF2 PdfFileReader objects
+        pdf1 = PyPDF2.PdfFileReader(f1)
+        pdf2 = PyPDF2.PdfFileReader(f2)
+
+        # Compare the number of pages in each PDF
+        if pdf1.getNumPages() != pdf2.getNumPages():
+            return False
+
+        # Compare the content of each page in the two PDFs
+        for i in range(pdf1.getNumPages()):
+            page1 = pdf1.getPage(i)
+            page2 = pdf2.getPage(i)
+            if page1.extractText() != page2.extractText():
+                return False
+
+    # If we made it this far, the two PDFs are identical
+    return True
 
 class TestMarkdownEditor(unittest.TestCase):
     @classmethod
@@ -71,6 +94,7 @@ class TestMarkdownEditor(unittest.TestCase):
         # Open the PDF and check if the contents are correct
         # with open(TEST_EXPORT_FILE, 'r') as f:
         #     self.assertEqual(f.read(), TEST_EXPORT_CONTENTS)
+        self.assertTrue(compare_pdfs(TEST_EXPORT_FILE, TEST_EXPORT_COMPARE_FILE))
 
 
 if __name__ == '__main__':
