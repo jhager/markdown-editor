@@ -45,11 +45,12 @@ class MarkdownEditor(QMainWindow):
         self.source_text_edit = QTextEdit()
         self.preview_text_edit = MyWebEngineView()
         self.interceptor = WebEngineUrlRequestInterceptor()
-        self.profile = QWebEngineProfile()
-        self.profile.setRequestInterceptor(self.interceptor)
+        # Own the profile so it lives at least as long as the window
+        self.profile = QWebEngineProfile(self)
+        # setRequestInterceptor is deprecated; use the thread-safe replacement
+        self.profile.setUrlRequestInterceptor(self.interceptor)
         self.page = MyWebEnginePage(self.profile, self.preview_text_edit)
         self.preview_text_edit.setPage(self.page)
-        self.page.setParent(self.profile)
 
 
         #todo self.preview_text_edit.anchorClicked.connect(self.open_link)
@@ -276,6 +277,17 @@ class MarkdownEditor(QMainWindow):
         # Call the superclass implementation of the moveEvent method
         super().moveEvent(event)
         self.write_settings()
+
+    def closeEvent(self, event):
+        # Explicitly tear down WebEngine objects in safe order to avoid Qt warnings
+        self.preview_text_edit.setPage(None)
+        if hasattr(self, "page") and self.page is not None:
+            self.page.deleteLater()
+            self.page = None
+        if hasattr(self, "profile") and self.profile is not None:
+            self.profile.deleteLater()
+            self.profile = None
+        super().closeEvent(event)
 
 
     def write_settings(self):
